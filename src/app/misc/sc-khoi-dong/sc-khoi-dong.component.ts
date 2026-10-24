@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { AuthService } from "src/app/services/auth.service";
 import { KdQuestion } from "src/app/services/types/game";
 import { environment } from "src/environments/environment";
+import { KdData } from "src/app/services/types/game";
 
 @Component({
   selector: "app-sc-khoi-dong",
@@ -14,6 +15,14 @@ export class ScKhoiDongComponent implements OnInit {
   currentQuestion: KdQuestion | undefined;
   time = 0;
   currentMaxQuestionNo = 0;
+  public kdData: KdData = {
+    questions: {
+      singleplayer: [],
+      multiplayer: [],
+    },
+    gamemode: "S",
+    currentSingleplayerPlayer: 2,
+  };
 
   currentQuestionNo: number = 0;
 
@@ -28,6 +37,13 @@ export class ScKhoiDongComponent implements OnInit {
       } else {
         this.currentQuestion = undefined;
       }
+      console.log(this.kdData.currentSingleplayerPlayer);
+    });
+    this.auth.socket.emit("get-kd-data", (callback) => {
+      this.kdData = callback;
+    });
+    this.auth.socket.on("update-kd-data", (data) => {
+      this.kdData = data;
     });
     this.auth.socket.on("update-number-question-kd", (max, curr) => {
       this.currentMaxQuestionNo = max;
